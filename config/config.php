@@ -41,25 +41,6 @@ return [
                     'unfolded' => false
                 ],
                 [
-                    'name'         => '机构管理',
-                    'icon'         => 'fa fa-group',
-                    'unfolded'     => true,
-                    'children'     => [
-                        [
-                            'path' => '/admin/companies',
-                            'name' => '公司列表',
-                        ],
-                        [
-                            'path' => '/admin/agencies',
-                            'name' => '机构列表',
-                        ],
-                        [
-                            'path' => '/admin/sales',
-                            'name' => '营业部列表',
-                        ],
-                    ]
-                ],
-                [
                     'path'     => '/admin/users',
                     'name'     => '用户管理',
                     'icon'     => 'fa fa-user',
