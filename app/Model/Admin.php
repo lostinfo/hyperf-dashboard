@@ -23,20 +23,4 @@ class Admin extends Model
             'admin_has_roles'
         );
     }
-
-    public function hasPermission(string $action)
-    {
-        $permission = Permission::where(['action' => $action])->first();
-        if (empty($permission)) return false;
-
-        $admin = $this->getModel();
-        if (!$admin->exists) return false;
-
-        foreach ($admin->roles as $role) {
-            if (AdminHasRole::where(['role_id' => $role->id, 'admin_id' => $admin->id])->exists()) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
