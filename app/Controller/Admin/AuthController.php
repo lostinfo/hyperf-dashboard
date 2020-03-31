@@ -9,6 +9,7 @@ use App\Controller\AbstractController;
 use App\Lib\Jwt;
 use App\Model\Admin;
 use App\Request\Admin\AdminLoginRequest;
+use App\Services\RoleService;
 
 class AuthController extends AbstractController
 {
@@ -26,7 +27,7 @@ class AuthController extends AbstractController
             return $this->responseMsg('密码错误');
         }
 
-        $jwt        = new Jwt();
+        $jwt   = new Jwt();
         $token = $jwt->login('admin', $admin->id);
         if (!$token) {
             return $this->responseMsg('登陆失败');
@@ -46,9 +47,9 @@ class AuthController extends AbstractController
         if (empty($token)) {
             return $this->response->json(['status' => false]);
         }
-        $token = $token[0];
-        $token = substr($token, 7);
-        $jwt = new Jwt();
+        $token  = $token[0];
+        $token  = substr($token, 7);
+        $jwt    = new Jwt();
         $jwt_id = $jwt->validateToken($token, 'admin');
         if (!$jwt_id) {
             return $this->response->json(['status' => false]);
@@ -64,20 +65,22 @@ class AuthController extends AbstractController
 
     protected function responseAdmin(Admin $admin)
     {
+        $admin->load(['roles']);
+        $roleService = make(RoleService::class);
         if (!$admin->is_supper_admin) {
-            // todo get paths by admin roles
-            $menus = $this->getMenusByPaths([]);
+            $admin_paths = $roleService->getMenusViaRoles($admin->roles);
+            $menus       = $this->getMenusByPaths($admin_paths);
         } else {
             $menus = config('menus');
         }
 
-        // todo menus permissions
         return [
             'id'              => $admin->id,
             'username'        => $admin->username,
             'is_supper_admin' => $admin->is_supper_admin,
+            'roles'           => $admin->roles->only(['id', 'name'])->toArray(),
             'menus'           => $menus,
-            'permissions'     => [],
+            'permissions'     => $roleService->getPermissionsViaRoles($admin->roles),
             'created_at'      => $admin->created_at,
         ];
     }

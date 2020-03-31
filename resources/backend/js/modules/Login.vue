@@ -1,5 +1,6 @@
 <template>
   <div class="login-bg">
+    <div class="login-filter"></div>
     <div class="login-wrapper">
       <el-form :model="loginForm" :rules="loginRules" ref="loginRef" label-positin="left" label-width="0px"
                class="login-form">
@@ -87,16 +88,29 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/slider-2.jpg);
-    background-size: cover;
+    position: relative;
   }
 
+  .login-filter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/slider-2.jpg);
+    background-size: cover;
+    filter: blur(20px);
+    z-index: 1;
+  }
   .login-wrapper {
     max-width: 360px;
     width: 100%;
     padding: 20px;
+    color: #333333;
+    box-shadow: 1px 2px 5px 0 #333333;
     background: linear-gradient(to bottom, rgb(46, 141, 197) 0%, rgba(0, 0, 0, 0.6) 100%);
     border-radius: 5px;
+    z-index: 10;
   }
 
   .login-form {
@@ -108,6 +122,7 @@
     margin: 10px 0 40px 0;
     color: #FFFFFF;
     font-size: 28px;
+    text-shadow: -2px 0 rgba(0, 255, 255, .5), 2px 0 rgba(255, 0, 0, .5);
   }
 
   .login-btn {
@@ -119,5 +134,6 @@
   .login-btn:hover {
     background-color: #607d8bc7;
     border-color: #607d8bc7;
+    color: #FFFFFF;
   }
 </style>
