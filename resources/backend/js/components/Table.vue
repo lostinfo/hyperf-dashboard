@@ -82,6 +82,7 @@
 <script>
   import fecha from 'fecha'
   import checkPermission from '../utils/checkPermission'
+  import {base_api_url} from "../config/app"
 
   export default {
     name: "Table",
@@ -199,19 +200,28 @@
       },
       searchFormExportSubmit() {
         let that = this
-        that.axios.get(that.apiUrl + '/export', {params: that.searchModel, responseType: 'blob'}).then(res => {
-          that.download(res)
+        let newAxios = that.axios.create({
+          baseUrl: base_api_url,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Authorization': 'Bearer ' + that.$store.state.authorization,
+          }
         })
-      },
-      download(blob) {
-        let that = this
-        const url = window.URL.createObjectURL(new Blob([blob], {type: 'application/vnd.ms-excel'}))
-        const link = document.createElement('a')
+        newAxios.get('/export' + that.apiUrl, {params: that.searchModel, responseType: 'arraybuffer'}).then(res => {
+          let filename_matchs = res.headers['content-disposition'].match(/filename=([\.\w]+)/)
+          let filename = filename_matchs[1] || fecha.format(new Date(), 'YYYYMMDDhhmmssSSS') + '.xlsx'
 
-        link.href = url
-        link.setAttribute('download', fecha.format(new Date(), 'YYYYMMDDhhmmssSSS') + '.xlsx')
-        document.body.appendChild(link)
-        link.click()
+          const url = window.URL.createObjectURL(new Blob([res.data], {type: res.headers['content-type']}))
+          const link = document.createElement('a')
+
+          link.href = url
+          link.setAttribute('download', filename)
+          document.body.appendChild(link)
+          link.click()
+        }).catch(err => {
+          console.log(err)
+          that.$message.error('下载失败')
+        })
       },
       cacheData() {
         sessionStorage.setItem(this.cache_key, JSON.stringify({

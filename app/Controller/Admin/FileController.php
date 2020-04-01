@@ -1,11 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wei gao
- * Email:1225039937@qq.com
- * Date: 2020-03-27
- * Time: 10:42
- */
+
+declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
@@ -18,15 +13,15 @@ class FileController extends AbstractController
 {
     public function article(ImageUploadRequest $request)
     {
-        $file_name    = Str::random(40);
+        $file_name = Str::random(40);
         $extension = $request->file('file')->getExtension();
 
         $url = "/article/{$file_name}.{$extension}";
-        $request->file('file')->moveTo(BASE_PATH.'/public'.$url);
+        $request->file('file')->moveTo(BASE_PATH . '/public' . $url);
 
         return $this->response->json([
             'url'          => $url,
-            'absolute_url' => config('app_url').$url,
+            'absolute_url' => config('app_url') . $url,
         ]);
     }
 }

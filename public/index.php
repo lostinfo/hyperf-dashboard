@@ -22,7 +22,7 @@ function mix($file_puth)
 
     <!-- Styles -->
     <link href="<?php echo mix('/dist/css/backend/app.css'); ?>" rel="stylesheet">
-    <title>征订易管理系统</title>
+    <title>Hyperf Dashboard</title>
 
     <!-- Fonts -->
 

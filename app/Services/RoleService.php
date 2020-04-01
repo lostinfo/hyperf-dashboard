@@ -20,6 +20,9 @@ class RoleService
      */
     public function getPermissionsViaRoles($roles)
     {
+        if (empty($roles)) {
+            return [];
+        }
         return collect($roles)->flatMap(function ($role) {
             return $this->getPermissionsViaRole($role->id);
         })->flatten()->unique()->sort()->values()->toArray();
@@ -45,6 +48,9 @@ class RoleService
      */
     public function getMenusViaRoles($roles)
     {
+        if (empty($roles)) {
+            return [];
+        }
         return collect($roles)->flatMap(function ($role) {
             return $role->menus;
         })->flatten()->sort()->values()->toArray();

@@ -1,7 +1,8 @@
 <template>
   <el-row>
     <el-row>
-      <vue-table ref="table" :api-url="'/articles'" show-paginate :search-model="searchModel" :fields="fields"
+      <vue-table ref="table" :api-url="'/articles'" show-paginate can-export :search-model="searchModel"
+                 :fields="fields"
                  :item-actions="itemActions" @table-action="tableActions">
         <template slot="header-title">
           <span>文章列表</span>

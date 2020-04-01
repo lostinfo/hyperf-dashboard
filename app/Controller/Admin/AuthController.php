@@ -70,8 +70,10 @@ class AuthController extends AbstractController
         if (!$admin->is_supper_admin) {
             $admin_paths = $roleService->getMenusViaRoles($admin->roles);
             $menus       = $this->getMenusByPaths($admin_paths);
+            $permissions = $roleService->getPermissionsViaRoles($admin->roles);
         } else {
-            $menus = config('menus');
+            $menus       = config('menus');
+            $permissions = [];
         }
 
         return [
@@ -80,7 +82,7 @@ class AuthController extends AbstractController
             'is_supper_admin' => $admin->is_supper_admin,
             'roles'           => $admin->roles->only(['id', 'name'])->toArray(),
             'menus'           => $menus,
-            'permissions'     => $roleService->getPermissionsViaRoles($admin->roles),
+            'permissions'     => $permissions,
             'created_at'      => $admin->created_at,
         ];
     }

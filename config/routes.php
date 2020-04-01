@@ -44,20 +44,12 @@ Router::addGroup('/api/admin', function () {
     Router::get('/articles/{id}', 'App\Controller\Admin\ArticleController@info');
     Router::delete('/articles/{id}', 'App\Controller\Admin\ArticleController@destroy');
 
-    Router::get('/companies', 'App\Controller\Admin\CompanyController@index');
-    Router::post('/companies', 'App\Controller\Admin\CompanyController@store');
-    Router::get('/companies/{id}', 'App\Controller\Admin\CompanyController@info');
-    Router::delete('/companies/{id}', 'App\Controller\Admin\CompanyController@destroy');
+    // Export
+    Router::addGroup('/export', function () {
 
-    Router::get('/agencies', 'App\Controller\Admin\AgencyController@index');
-    Router::post('/agencies', 'App\Controller\Admin\AgencyController@store');
-    Router::get('/agencies/{id}', 'App\Controller\Admin\AgencyController@info');
-    Router::delete('/agencies/{id}', 'App\Controller\Admin\AgencyController@destroy');
+        Router::get('/articles', 'App\Controller\Admin\ArticleController@export');
 
-    Router::get('/sales', 'App\Controller\Admin\SaleController@index');
-    Router::post('/sales', 'App\Controller\Admin\SaleController@store');
-    Router::get('/sales/{id}', 'App\Controller\Admin\SaleController@info');
-    Router::delete('/sales/{id}', 'App\Controller\Admin\SaleController@destroy');
+    });
 
 }, ['middleware' => [\App\Middleware\AdminAuthMiddleware::class, \App\Middleware\AdminPermissionMiddleware::class]]);
 
@@ -74,9 +66,6 @@ Router::addGroup('/api/admin', function () {
         Router::get('/roles', 'App\Controller\Admin\RoleController@options');
         Router::get('/roles/menu', 'App\Controller\Admin\RoleController@menuOptions');
         Router::get('/permissions', 'App\Controller\Admin\PermissionController@options');
-        Router::get('/companies', 'App\Controller\Admin\CompanyController@options');
-        Router::get('/agencies', 'App\Controller\Admin\AgencyController@options');
-        Router::get('/sales', 'App\Controller\Admin\SaleController@options');
 
     });
 

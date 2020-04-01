@@ -1,11 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: wei gao
- * Email:1225039937@qq.com
- * Date: 2020-03-27
- * Time: 10:01
- */
+
+declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
@@ -13,20 +8,59 @@ namespace App\Controller\Admin;
 use App\Controller\AbstractController;
 use App\Model\Article;
 use App\Request\Admin\ArticleStoreRequest;
+use App\Support\ExportHelper;
+use App\Support\ExportHelperInterface;
+use Hyperf\Guzzle\ClientFactory;
 use Hyperf\Utils\Str;
 use League\Flysystem\Filesystem;
 
-class ArticleController extends AbstractController
+class ArticleController extends AbstractController implements ExportHelperInterface
 {
+
+    use ExportHelper;
 
     /**
      * @var Filesystem
      */
     private $filesystem;
 
-    public function __construct(Filesystem $filesystem)
+    /**
+     * @var ClientFactory
+     */
+    private $clientFactory;
+
+    public function __construct(Filesystem $filesystem, ClientFactory $clientFactory)
     {
-        $this->filesystem = $filesystem;
+        $this->filesystem    = $filesystem;
+        $this->clientFactory = $clientFactory;
+    }
+
+    public function getExportHeaders(): array
+    {
+        return [
+            '#',
+            'title',
+            'subtitle',
+            'created_at',
+        ];
+    }
+
+    public function getExportData(): \Generator
+    {
+        $request  = $this->request;
+        $articles = Article::where(function ($query) use ($request) {
+            if ($title = $request->input('title')) {
+                $query->where('title', 'like', "%{$title}%");
+            }
+        })->get();
+        foreach ($articles as $article) {
+            yield [
+                $article->id,
+                $article->title,
+                $article->subtitle,
+                $article->created_at->format('Y-m-d H:i:s'),
+            ];
+        }
     }
 
     public function index()
@@ -108,8 +142,7 @@ class ArticleController extends AbstractController
         }
 
 
-        // todo 协程
-        $client     = new \GuzzleHttp\Client();
+        $client = $this->clientFactory->create();
         foreach ($transfer_urls as $transfer_url) {
             $res = $client->get($transfer_url);
             if ($res->getStatusCode() == 200) {
@@ -120,8 +153,9 @@ class ArticleController extends AbstractController
                 $file_name    = Str::random(40);
                 $url          = "/article/{$file_name}.{$extension}";
                 $this->filesystem->write('/public' . $url, $file_content);
-                $content  = str_replace($transfer_url, $url, $content);
-                $markdown = str_replace($transfer_url, $url, $markdown);
+                $absolute_url = config('app_url') . $url;
+                $content      = str_replace($transfer_url, $absolute_url, $content);
+                $markdown     = str_replace($transfer_url, $absolute_url, $markdown);
             }
         }
         $validated['content']  = $content;
