@@ -22,7 +22,14 @@ class ImageUploadRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'file' => 'required|image'
+        ];
+    }
 
+    public function attributes(): array
+    {
+        return [
+            'file' => '文件',
         ];
     }
 }

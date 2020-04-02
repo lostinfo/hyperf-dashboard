@@ -83,7 +83,7 @@ class AuthController extends AbstractController
             'roles'           => $admin->roles->only(['id', 'name'])->toArray(),
             'menus'           => $menus,
             'permissions'     => $permissions,
-            'created_at'      => $admin->created_at,
+            'created_at'      => $admin->created_at->format('Y-m-d'),
         ];
     }
 
