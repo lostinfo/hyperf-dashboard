@@ -21,7 +21,7 @@ class ResponseHelper
      * @param array $errors
      * @return SwooleStream
      */
-    public static function createBody(string $message, array $data = [], array $errors): SwooleStream
+    public static function createBody(string $message, array $data = [], array $errors = []): SwooleStream
     {
         $json = [
             'message' => $message,

@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-use App\Lib\Log;
 use App\Services\RoleService;
-use App\Support\ResponseBody;
 use App\Support\ResponseHelper;
 use Hyperf\Utils\Context;
 use Psr\Container\ContainerInterface;
@@ -50,12 +48,12 @@ class AdminPermissionMiddleware implements MiddlewareInterface
             }
             preg_match("/App\\\Controller\\\Admin\\\([a-zA-Z]+)Controller@([a-zA-Z]+)/", $action, $matchs);
             if (count($matchs) !== 3) {
-                return $this->response->withStatus(ResponseHelper::HTTP_UNPROCESSABLE_ENTITY)->withBody(ResponseBody::createBody("未匹配到权限"));
+                return $this->response->withStatus(ResponseHelper::HTTP_UNPROCESSABLE_ENTITY)->withBody(ResponseHelper::createBody("未匹配到权限"));
             }
             $simply_action = $matchs[1] . "@" . $matchs[2];
             $roleService = make(RoleService::class);
             if (!$roleService->hasPermission($admin, $simply_action)) {
-                return $this->response->withStatus(ResponseHelper::HTTP_UNPROCESSABLE_ENTITY)->withBody(ResponseBody::createBody("您没有 {$simply_action} 访问权限"));
+                return $this->response->withStatus(ResponseHelper::HTTP_UNPROCESSABLE_ENTITY)->withBody(ResponseHelper::createBody("您没有 {$simply_action} 访问权限"));
             }
         }
 
