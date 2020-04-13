@@ -33,6 +33,7 @@
         style="width: 100%">
         <el-table-column v-for="(field, index) in fields" :key="index" :label="field.label" :prop="field.key"
                          :width="field.width || ''"
+                         :fixed="field.fixed ? field.fixed: false"
                          :sortable="field.sortable ? field.sortable : false"
                          :align="field.align ? field.align : 'left'">
           <template slot-scope="scope">
