@@ -30,12 +30,14 @@
         stripe
         @sort-change="handleSortChange"
         v-loading="listLoading"
-        style="width: 100%">
+        border
+        style="width: 100%"
+        class="custom-table">
         <el-table-column v-for="(field, index) in fields" :key="index" :label="field.label" :prop="field.key"
                          :width="field.width || ''"
                          :fixed="field.fixed ? field.fixed: false"
                          :sortable="field.sortable ? field.sortable : false"
-                         :align="field.align ? field.align : 'left'">
+                         :align="field.align ? field.align : (field.width && field.width < 130 ? 'center' : 'left')">
           <template slot-scope="scope">
             <template v-if="!field.template">
               {{scope.row[field.key]}}
@@ -83,7 +85,7 @@
 <script>
   import fecha from 'fecha'
   import checkPermission from '../utils/checkPermission'
-  import {base_api_url} from "../config/app"
+  import {base_api_url} from "../config/app";
 
   export default {
     name: "Table",
@@ -267,5 +269,21 @@
   .view-card-header .header-search {
     padding-top: 18px;
     min-height: 36px;
+  }
+</style>
+
+<style>
+  .custom-table .cell .nowrap {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: break-all;
+  }
+
+  .custom-table .cell .normal {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: break-all;
   }
 </style>

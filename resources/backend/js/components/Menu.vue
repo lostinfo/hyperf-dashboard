@@ -5,7 +5,7 @@
       <template v-if="item.unfolded">
         <el-submenu :index="index + ''">
           <template slot="title">
-            <i :class="item.icon"></i>
+            <i :class="item.icon + ' menu-icon'"></i>
             <span slot="title">{{item.name}}</span>
           </template>
           <el-menu-item-group>
@@ -17,7 +17,7 @@
       </template>
       <template v-else>
         <el-menu-item :index="item.path">
-          <i :class="item.icon"></i>
+          <i :class="item.icon + ' menu-icon'"></i>
           <span slot="title">{{item.name}}</span>
         </el-menu-item>
       </template>
@@ -49,6 +49,9 @@
   }
 </script>
 
-<style scoped>
-
+<style>
+  .menu-icon {
+    width: 1em;
+    text-align: center;
+  }
 </style>
