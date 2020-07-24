@@ -8,7 +8,7 @@
         <el-form-item label="权限" prop="permissions">
           <el-checkbox-group v-model="roleModel.permissions">
             <el-checkbox v-for="(permission, index) in permission_options" :key="index" :label="permission.id">
-              {{permission.name}}
+              {{permission.alias ? permission.alias : permission.name}}
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
@@ -48,9 +48,11 @@
     name: "Role",
     data() {
       return {
+        guard_name: '',
         formLoading: false,
         id: null,
         roleModel: {
+          guard_name: '',
           name: '',
           permissions: [],
           menus: [],
@@ -65,7 +67,10 @@
       }
     },
     created() {
-
+      if (this.$route.query.hasOwnProperty('guard_name')) {
+        this.guard_name = this.$route.query.guard_name
+        this.roleModel.guard_name = this.$route.query.guard_name
+      }
     },
     mounted() {
       this.getPermissionOptions()
@@ -78,13 +83,13 @@
     methods: {
       getPermissionOptions() {
         let that = this
-        that.axios.get('/option/permissions').then(res => {
+        that.axios.get('/option/permissions', {params: {guard_name: that.guard_name}}).then(res => {
           that.permission_options = res
         })
       },
       getMenuOptions() {
         let that = this
-        that.axios.get('/option/roles/menu').then(res => {
+        that.axios.get('/option/roles/menu', {params: {guard_name: that.guard_name}}).then(res => {
           that.menu_options = res
         })
       },

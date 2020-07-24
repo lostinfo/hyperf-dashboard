@@ -17,13 +17,23 @@
           <el-input v-model="adminModel.password"></el-input>
         </el-form-item>
         <el-form-item label="是否激活" prop="active">
-          <el-checkbox v-model="adminModel.active" :true-label="1" :false-label="0"></el-checkbox>
+          <el-checkbox v-model="adminModel.active"></el-checkbox>
         </el-form-item>
         <el-form-item label="角色" prop="roles">
           <el-checkbox-group v-model="adminModel.roles">
             <el-checkbox :label="role.id" v-for="(role, index) in role_options" :key="index">{{role.name}}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
+        <el-form-item label="权限" prop="permissions">
+          <el-checkbox-group v-model="adminModel.permissions">
+            <el-checkbox v-for="(permission, index) in permission_options" :key="index" :label="permission.id">
+              {{permission.alias ? permission.alias : permission.name}}
+            </el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
+        <div class="tip">
+          <p>用户权限=角色权限+个人权限</p>
+        </div>
         <el-form-item>
           <el-button @click="submitClose">取消</el-button>
           <el-button type="primary" @click="submit">提交</el-button>
@@ -45,6 +55,7 @@
           password: '',
           active: 0,
           roles: [],
+          permissions: [],
         },
         adminRules: {
           username: [
@@ -56,6 +67,7 @@
           password: []
         },
         role_options: [],
+        permission_options: [],
       }
     },
     created() {
@@ -63,6 +75,7 @@
     },
     mounted() {
       this.getRoleOptions()
+      this.getPermissionOptions()
       if (this.$route.params.hasOwnProperty('id')) {
         this.id = this.$route.params.id
         this.getAdmin()
@@ -77,18 +90,18 @@
           that.role_options = res
         })
       },
+      getPermissionOptions() {
+        let that = this
+        that.axios.get('/option/permissions').then(res => {
+          that.permission_options = res
+        })
+      },
       getAdmin() {
         let that = this
         that.formLoading = true
         that.axios.get('/admins/' + that.id).then(res => {
           that.formLoading = false
-          that.adminModel = {
-            id: res.id,
-            username: res.username,
-            password: '',
-            roles: res.roles,
-            active: res.active ? 1 : 0,
-          }
+          that.adminModel = res
         }).catch(err => {
           that.formLoading = false
         })

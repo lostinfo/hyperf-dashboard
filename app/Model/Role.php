@@ -4,35 +4,36 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use App\Services\RoleService;
-use Hyperf\Database\Model\Events\Deleted;
-use Hyperf\Database\Model\Events\Updated;
+use App\Lib\Permission\Contracts\Role as RoleContract;
 
-class Role extends Model
+class Role extends \App\Lib\Permission\Model\Role
 {
     protected $casts = [
         'menus' => 'array',
     ];
 
-    public function permissions()
+    public static function findOrCreate(string $name, $guardName, $attributes = []): RoleContract
     {
-        return $this->belongsToMany(
-            Permission::class,
-            'role_has_permissions',
-            'role_id',
-            'permission_id'
-        );
+        $role = static::where(['name' => $name, 'guard_name' => $guardName])->first();
+
+        if (!$role) {
+            $role             = new Role();
+            $role->name       = $name;
+            $role->guard_name = $guardName;
+            $role->menus      = [];
+            $role->save();
+        }
+
+        return $role;
     }
 
-    public function updated(Updated $event)
+    public static function getMenusViaRoles($roles)
     {
-        $roleService = make(RoleService::class);
-        $roleService->cleanCache($this->id);
-    }
-
-    public function deleted(Deleted $event)
-    {
-        $roleService = make(RoleService::class);
-        $roleService->cleanCache($this->id);
+        if (empty($roles)) {
+            return [];
+        }
+        return collect($roles)->flatMap(function ($role) {
+            return $role->menus;
+        })->flatten()->sort()->values()->toArray();
     }
 }

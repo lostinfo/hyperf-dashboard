@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use App\Model\Admin;
 use App\Services\RoleService;
 use App\Support\ResponseHelper;
-use Hyperf\Utils\Context;
 use Psr\Container\ContainerInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -30,14 +30,17 @@ class AdminPermissionMiddleware implements MiddlewareInterface
     public function __construct(ContainerInterface $container, HttpResponse $response)
     {
         $this->container = $container;
-        $this->response = $response;
+        $this->response  = $response;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $admin = Context::get('admin');
+        /**
+         * @var $admin Admin
+         */
+        $admin = auth('admin')->user();
         if (empty($admin)) {
-            return $this->response->withStatus(ResponseHelper::HTTP_UNAUTHORIZED);
+            return $this->response->withStatus(ResponseHelper::HTTP_UNAUTHORIZED)->withBody(ResponseHelper::createBody('Unauthorized.'));
         }
         if (!$admin->is_supper_admin) {
             $dispatcher = $request->getAttribute('Hyperf\HttpServer\Router\Dispatched');
@@ -51,9 +54,8 @@ class AdminPermissionMiddleware implements MiddlewareInterface
                 return $this->response->withStatus(ResponseHelper::HTTP_UNPROCESSABLE_ENTITY)->withBody(ResponseHelper::createBody("未匹配到权限"));
             }
             $simply_action = $matchs[1] . "@" . $matchs[2];
-            $roleService = make(RoleService::class);
-            if (!$roleService->hasPermission($admin, $simply_action)) {
-                return $this->response->withStatus(ResponseHelper::HTTP_UNPROCESSABLE_ENTITY)->withBody(ResponseHelper::createBody("您没有 {$simply_action} 访问权限"));
+            if (!$admin->hasPermissionTo($simply_action)) {
+                return $this->response->withStatus(ResponseHelper::HTTP_UNPROCESSABLE_ENTITY)->withBody(ResponseHelper::createBody("没有访问权限"));
             }
         }
 

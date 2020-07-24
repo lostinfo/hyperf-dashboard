@@ -33,7 +33,7 @@ Router::addGroup('/api/admin', function () {
 }, ['middleware' => [\App\Middleware\AdminAuthMiddleware::class, \App\Middleware\CheckAdminIsSupperMiddleware::class]]);
 
 
-// Admin Auth $$ Permission
+// Admin Auth && Permission
 Router::addGroup('/api/admin', function () {
 
     Router::get('/users', 'App\Controller\Admin\UserController@index');
@@ -67,6 +67,7 @@ Router::addGroup('/api/admin', function () {
         Router::get('/roles/menu', 'App\Controller\Admin\RoleController@menuOptions');
         Router::get('/permissions', 'App\Controller\Admin\PermissionController@options');
 
+        Router::get('/auth/guards', 'App\Controller\Admin\AuthController@guardOptions');
     });
 
 }, ['middleware' => [\App\Middleware\AdminAuthMiddleware::class]]);
@@ -88,6 +89,7 @@ Router::addGroup('/api/home', function () {
     Router::get('/articles/{id}', 'App\Controller\Home\ArticleController@info');
 
 });
+
 
 // Notify
 Router::addGroup('/api/notify', function () {

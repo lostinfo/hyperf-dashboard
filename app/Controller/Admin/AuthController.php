@@ -8,8 +8,9 @@ namespace App\Controller\Admin;
 use App\Controller\AbstractController;
 use App\Lib\Jwt;
 use App\Model\Admin;
+use App\Model\Role;
 use App\Request\Admin\AdminLoginRequest;
-use App\Services\RoleService;
+use App\Support\Helper;
 
 class AuthController extends AbstractController
 {
@@ -63,16 +64,20 @@ class AuthController extends AbstractController
         ]);
     }
 
+    public function guardOptions()
+    {
+        return $this->response->json(array_keys(config('auth.guards')));
+    }
+
     protected function responseAdmin(Admin $admin)
     {
         $admin->load(['roles']);
-        $roleService = make(RoleService::class);
         if (!$admin->is_supper_admin) {
-            $admin_paths = $roleService->getMenusViaRoles($admin->roles);
+            $admin_paths = Role::getMenusViaRoles($admin->roles);
             $menus       = $this->getMenusByPaths($admin_paths);
-            $permissions = $roleService->getPermissionsViaRoles($admin->roles);
+            $permissions = $admin->getAllPermissions()->pluck('name')->toArray();
         } else {
-            $menus       = config('menus');
+            $menus       = config('auth.menus.admin');
             $permissions = [];
         }
 
@@ -89,28 +94,7 @@ class AuthController extends AbstractController
 
     protected function getMenusByPaths(array $paths)
     {
-        $menus = config('menus');
-        foreach ($menus as $menu_group_index => $menu_group) {
-            foreach ($menu_group['menus'] as $menu_index => $menu) {
-                if ($menu['unfolded']) {
-                    foreach ($menu['children'] as $menu_item_index => $menu_item) {
-                        if (!in_array($menu_item['path'], $paths)) {
-                            unset($menus[$menu_group_index]['menus'][$menu_index]['children'][$menu_item_index]);
-                        }
-                    }
-                    if (count($menus[$menu_group_index]['menus'][$menu_index]['children']) < 1) {
-                        unset($menus[$menu_group_index]['menus'][$menu_index]);
-                    }
-                } else {
-                    if (!in_array($menu['path'], $paths)) {
-                        unset($menus[$menu_group_index]['menus'][$menu_index]);
-                    }
-                }
-            }
-            if (count($menus[$menu_group_index]['menus']) < 1) {
-                unset($menus[$menu_group_index]);
-            }
-        }
-        return array_values($menus);
+        $menus = config('auth.menus.admin');
+        return Helper::filterMenusByPaths($menus, $paths);
     }
 }

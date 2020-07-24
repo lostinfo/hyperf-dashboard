@@ -47,4 +47,19 @@ abstract class AbstractController
     {
         return $this->response->withStatus($status_code)->withBody(ResponseHelper::createBody($message));
     }
+
+    protected function getOrderByColumn()
+    {
+        return $this->request->input('order_by_column', 'id');
+    }
+
+    protected function getOrderByDirection()
+    {
+        return $this->request->input('order_by_direction', 'desc');
+    }
+
+    protected function getPageSize()
+    {
+        return (int)($this->request->input('page_size', 15));
+    }
 }

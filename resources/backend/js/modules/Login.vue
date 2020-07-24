@@ -1,35 +1,46 @@
 <template>
-  <div class="login-bg">
-    <div class="login-filter"></div>
-    <div class="login-wrapper">
-      <el-form :model="loginForm" :rules="loginRules" ref="loginRef" label-positin="left" label-width="0px"
-               class="login-form">
-        <h3 class="title">{{header_name}}</h3>
-        <el-form-item prop="username">
-          <el-input type="text" v-model="loginForm.username" auto-complete="off" prefix-icon="el-icon-user"
-                    placeholder="用户名" :autofocus="true"></el-input>
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input type="password" v-model="loginForm.password"
-                    @keyup.native.13="loginFormSubmit('loginRef')"
-                    auto-complete="off" prefix-icon="el-icon-lock" placeholder="密码"></el-input>
-        </el-form-item>
-        <!--<el-checkbox v-model="loginForm.remember">Remember me</el-checkbox>-->
-        <el-form-item>
-          <el-button class="login-btn" style="width: 100%;"
-                     @click.native.prevent="loginFormSubmit('loginRef')"
-                     :loading="logining">
-            登录
-          </el-button>
-        </el-form-item>
-      </el-form>
+  <div class="container">
+    <div class="lang"></div>
+    <div class="content">
+      <div class="top">
+        <div class="header">
+          <img :src="app_logo" class="logo" alt="">
+          <span class="title">{{app_name}}</span>
+        </div>
+        <div class="desc">welcome to {{app_name}}</div>
+      </div>
+      <div class="main">
+        <div class="login-wrapper">
+          <el-form :model="loginForm" :rules="loginRules" ref="loginRef" label-positin="left" label-width="0px"
+                   class="login-form">
+            <el-form-item prop="username">
+              <el-input type="text" v-model="loginForm.username" auto-complete="off" prefix-icon="el-icon-user"
+                        placeholder="用户名" :autofocus="true"></el-input>
+            </el-form-item>
+            <el-form-item prop="password">
+              <el-input type="password" v-model="loginForm.password"
+                        @keyup.native.13="loginFormSubmit('loginRef')"
+                        auto-complete="off" prefix-icon="el-icon-lock" placeholder="密码"></el-input>
+            </el-form-item>
+            <!--<el-checkbox v-model="loginForm.remember">Remember me</el-checkbox>-->
+            <el-form-item>
+              <el-button type="primary" class="login-btn" style="width: 100%;"
+                         @click.native.prevent="loginFormSubmit('loginRef')"
+                         :loading="logining">
+                登录
+              </el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
     </div>
+    <page-footer></page-footer>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 
-  import {app_name} from "../config/app"
+  import {app_logo, app_name} from "../config/app"
 
   export default {
     name: 'Login',
@@ -38,7 +49,7 @@
         logining: false,
         loginForm: {
           username: '',
-          password: ''
+          password: '',
         },
         loginRules: {
           username: [
@@ -48,7 +59,8 @@
             {required: true, message: '请输入密码', trigger: 'blur'},
           ]
         },
-        header_name: app_name,
+        app_logo: app_logo,
+        app_name: app_name,
       }
     },
     methods: {
@@ -61,10 +73,7 @@
             return false
           }
           that.logining = true
-          let loginParams = new URLSearchParams()
-          loginParams.append('username', that.loginForm.username)
-          loginParams.append('password', that.loginForm.password)
-          that.axios.post('/login', loginParams).then(res => {
+          that.axios.post('/login', that.loginForm).then(res => {
             that.$store.commit('setAdmin', res.admin)
             that.$store.commit('setAuthorization', res.authorization)
             that.$message.success('登录成功')
@@ -82,58 +91,74 @@
 </script>
 
 <style scoped>
-  .login-bg {
+  .container {
     width: 100%;
     height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
+    flex-direction: column;
+    background-image: url("https://gw.alipayobjects.com/zos/rmsportal/TVYTbAXWheQpRcWDaDMu.svg");
+    background-repeat: no-repeat;
+    background-position: center 110px;
+    background-size: 100%;
   }
 
-  .login-filter {
-    position: absolute;
-    top: 0;
-    left: 0;
+  .lang {
     width: 100%;
-    height: 100%;
-    background-image: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/142996/slider-2.jpg);
-    background-size: cover;
-    filter: blur(20px);
-    z-index: 1;
+    height: 40px;
+    line-height: 44px;
+    text-align: right;
   }
+
+  .content {
+    padding: 32px;
+    flex: 1 1;
+  }
+
+  .top {
+    text-align: center;
+  }
+
+  .header {
+    height: 44px;
+    line-height: 44px;
+  }
+
+  .logo {
+    height: 44px;
+    margin-right: 16px;
+    vertical-align: top;
+  }
+
+  .title {
+    position: relative;
+    top: 2px;
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 600;
+    font-size: 33px;
+    font-family: Avenir, 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  }
+
+  .desc {
+    margin-top: 12px;
+    margin-bottom: 40px;
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 14px;
+  }
+
+  .main {
+    width: 368px;
+    margin: 0 auto;
+  }
+
+
   .login-wrapper {
     max-width: 360px;
     width: 100%;
     padding: 20px;
     color: #333333;
-    box-shadow: 1px 2px 5px 0 #333333;
-    background: linear-gradient(to bottom, rgb(46, 141, 197) 0%, rgba(0, 0, 0, 0.6) 100%);
-    border-radius: 5px;
-    z-index: 10;
   }
 
   .login-form {
     width: 100%;
-  }
-
-  .title {
-    text-align: center;
-    margin: 10px 0 40px 0;
-    color: #FFFFFF;
-    font-size: 28px;
-    text-shadow: -2px 0 rgba(0, 255, 255, .5), 2px 0 rgba(255, 0, 0, .5);
-  }
-
-  .login-btn {
-    background-color: #607D8B;
-    border-color: #607D8B;
-    color: #FFFFFF;
-  }
-
-  .login-btn:hover {
-    background-color: #607d8bc7;
-    border-color: #607d8bc7;
-    color: #FFFFFF;
   }
 </style>

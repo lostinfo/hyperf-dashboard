@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use App\Support\ResponseHelper;
-use Hyperf\Utils\Context;
 use Psr\Container\ContainerInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -34,7 +33,7 @@ class CheckAdminIsSupperMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $admin = Context::get('admin');
+        $admin = auth('admin')->user();
         if (empty($admin)) {
             return $this->response->withStatus(401);
         }

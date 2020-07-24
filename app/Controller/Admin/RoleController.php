@@ -6,7 +6,6 @@ namespace App\Controller\Admin;
 
 
 use App\Controller\AbstractController;
-use App\Model\AdminHasRole;
 use App\Model\Role;
 use App\Request\Admin\RoleStoreRequest;
 
@@ -20,11 +19,13 @@ class RoleController extends AbstractController
                 if ($name = $request->input('name')) {
                     $query->where(['name' => $name]);
                 }
-            })->withCount('permissions')
-                ->orderBy(
-                $request->input('order_by_column', 'id'),
-                $request->input('order_by_direction', 'desc')
-            )->paginate((int)($request->input('page_size', 15)))
+                if ($guard_name = $request->input('guard_name')) {
+                    $query->where(['guard_name' => $guard_name]);
+                }
+            })
+                ->withCount('permissions')
+                ->orderBy($this->getOrderByColumn(), $this->getOrderByDirection())
+                ->paginate($this->getPageSize())
                 ->toArray()
         );
     }
@@ -36,12 +37,13 @@ class RoleController extends AbstractController
         if ($id = $request->input('id')) {
             $role = Role::findOrFail($id);
         } else {
-            $role = new Role();
+            $role             = new Role();
+            $role->guard_name = $validated['guard_name'];
         }
         $role->name  = $validated['name'];
         $role->menus = $validated['menus'];
         $role->save();
-        $role->permissions()->sync($validated['permissions']);
+        $role->syncPermissions($validated['permissions']);
 
         return $this->response;
     }
@@ -50,8 +52,8 @@ class RoleController extends AbstractController
     {
         $role = Role::findOrFail($id);
         $role->load(['permissions']);
-        $permission_ids = collect($role->permissions)->pluck('id')->all();
-        $role = $role->toArray();
+        $permission_ids      = collect($role->permissions)->pluck('id')->all();
+        $role                = $role->toArray();
         $role['permissions'] = $permission_ids;
         return $this->response->json($role);
     }
@@ -59,20 +61,26 @@ class RoleController extends AbstractController
     public function destroy($id)
     {
         $role = Role::findOrFail($id);
-        if (AdminHasRole::where(['role_id' => $role->id])->exists()) {
-            return $this->responseMsg('此角色使用中，不可删除');
-        }
         $role->delete();
         return $this->response;
     }
 
     public function options()
     {
-        return $this->response->json(Role::select(['id', 'name'])->get()->toArray());
+        $request = $this->request;
+        return $this->response->json(
+            Role::where(function ($query) use ($request) {
+                if ($guard_name = $request->input('guard_name')) {
+                    $query->where(['guard_name' => $guard_name]);
+                }
+            })
+                ->select(['id', 'name'])->get()->toArray()
+        );
     }
 
     public function menuOptions()
     {
-        return $this->response->json(config('menus'));
+        $guard_name = $this->request->input('guard_name');
+        return $this->response->json(config('auth.menus.' . $guard_name));
     }
 }

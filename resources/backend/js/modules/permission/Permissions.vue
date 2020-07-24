@@ -9,11 +9,21 @@
 
       </template>
       <template slot="search-items">
-        <el-form-item label="别名" prop="name">
+        <el-form-item label="请求方法" prop="name">
           <el-input
-            placeholder="别名"
+            placeholder="请求方法"
             v-model="searchModel.name">
           </el-input>
+        </el-form-item>
+        <el-form-item label="用户组" prop="guard_name">
+          <el-select v-model="searchModel.guard_name">
+            <el-option
+              v-for="(item, index) in guard_options"
+              :key="index"
+              :label="item"
+              :value="item">
+            </el-option>
+          </el-select>
         </el-form-item>
       </template>
     </vue-table>
@@ -30,12 +40,12 @@
           <div class="block-list-content row-one">
             <div class="item-row">
               <label>请求方法</label>
-              <div class="value">{{permissionModel.action}}</div>
+              <div class="value">{{permissionModel.name}}</div>
             </div>
           </div>
         </div>
-        <el-form-item label="别名" prop="name">
-          <el-input v-model="permissionModel.name"></el-input>
+        <el-form-item label="别名" prop="alias">
+          <el-input v-model="permissionModel.alias"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -52,6 +62,7 @@
       return {
         searchModel: {
           name: '',
+          guard_name: '',
         },
         fields: [
           {
@@ -62,11 +73,17 @@
           },
           {
             label: '请求方法',
-            key: 'action',
+            key: 'name',
           },
           {
             label: '别名',
-            key: 'name',
+            template: ({name, alias}) => {
+              return alias ? alias : name
+            }
+          },
+          {
+            label: '用户组',
+            key: 'guard_name',
           },
           {
             label: '创建时间',
@@ -80,13 +97,15 @@
             label: '编辑',
           },
         ],
+        guard_options: [],
         permissionModel: {
           id: '',
-          action: '',
           name: '',
+          guard_name: '',
+          alias: '',
         },
         permissionRules: {
-          name: [
+          alias: [
             {required: true, message: '请输入别名', trigger: 'blur'}
           ],
         },
@@ -97,20 +116,22 @@
 
     },
     mounted() {
-
+      this.getGuardOptions()
     },
     methods: {
+      getGuardOptions() {
+        let that = this
+        that.axios.get('/option/auth/guards').then(res => {
+          that.guard_options = res
+        })
+      },
       tableActions(action, item) {
         let that = this
         that[action + 'Action'](item)
       },
       editAction(item) {
         let that = this
-        that.permissionModel = {
-          id: item.id,
-          action: item.action,
-          name: item.name,
-        }
+        that.permissionModel = item
         that.show_permission_dialog = true
       },
       permissionSubmit(ref) {

@@ -16,7 +16,7 @@ class FileController extends AbstractController
         $file_name = Str::random(40);
         $extension = $request->file('file')->getExtension();
 
-        $url = "/article/{$file_name}.{$extension}";
+        $url = "/uploads/{$file_name}.{$extension}";
         $request->file('file')->moveTo(BASE_PATH . '/public' . $url);
 
         return $this->response->json([

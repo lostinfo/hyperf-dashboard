@@ -10,7 +10,7 @@ class Log
 {
     /**
      * @param string $name
-     * @return \Psr\Log\LoggerInterface
+     * @return mixed
      */
     public static function get(string $name = 'app')
     {

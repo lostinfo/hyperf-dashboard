@@ -6,7 +6,7 @@ namespace App\Controller\Admin;
 
 
 use App\Controller\AbstractController;
-use App\Model\Permission;
+use App\Lib\Permission\Model\Permission;
 use App\Request\Admin\PermissionStoreRequest;
 
 class PermissionController extends AbstractController
@@ -19,10 +19,12 @@ class PermissionController extends AbstractController
                 if ($name = $request->input('name')) {
                     $query->where(['name' => $name]);
                 }
-            })->orderBy(
-                $request->input('order_by_column', 'id'),
-                $request->input('order_by_direction', 'desc')
-            )->paginate((int)($request->input('page_size', 15)))
+                if ($guard_name = $request->input('guard_name')) {
+                    $query->where(['guard_name' => $guard_name]);
+                }
+            })
+                ->orderBy($this->getOrderByColumn(), $this->getOrderByDirection())
+                ->paginate($this->getPageSize())
                 ->toArray()
         );
     }
@@ -45,8 +47,14 @@ class PermissionController extends AbstractController
 
     public function options()
     {
+        $request = $this->request;
         return $this->response->json(
-            Permission::select(['id', 'action', 'name'])->get()->toArray()
+            Permission::where(function ($query) use ($request) {
+                if ($guard_name = $request->input('guard_name')) {
+                    $query->where(['guard_name' => $guard_name]);
+                }
+            })
+                ->select(['id', 'name', 'alias'])->get()->toArray()
         );
     }
 }

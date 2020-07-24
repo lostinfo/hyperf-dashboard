@@ -213,6 +213,10 @@
     background-color: rgb(51, 126, 204) !important;
   }
 
+  .appbar-menu-center.el-menu--horizontal {
+    border-bottom: unset !important;
+  }
+
   .appbar-menu-right {
     border-bottom: none !important;
   }

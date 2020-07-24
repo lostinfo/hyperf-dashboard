@@ -32,6 +32,10 @@ class RoleStoreRequest extends FormRequest
                     }
                 })
             ],
+            'guard_name'  => [
+                'required',
+                Rule::in(array_keys(config('auth.guards'))),
+            ],
             'permissions' => 'required|array',
             'menus'       => 'required|array',
         ];
@@ -41,6 +45,7 @@ class RoleStoreRequest extends FormRequest
     {
         return [
             'name'        => '名称',
+            'guard_name'  => '用户组',
             'permissions' => '权限',
             'menus'       => '菜单',
         ];

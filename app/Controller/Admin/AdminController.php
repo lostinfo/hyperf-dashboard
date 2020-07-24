@@ -8,7 +8,6 @@ namespace App\Controller\Admin;
 use App\Controller\AbstractController;
 use App\Model\Admin;
 use App\Request\Admin\AdminStoreRequest;
-use App\Support\ResponseHelper;
 
 class AdminController extends AbstractController
 {
@@ -20,11 +19,10 @@ class AdminController extends AbstractController
                 if ($username = $request->input('username')) {
                     $query->where(['username' => $username]);
                 }
-            })->with(['roles'])
-                ->orderBy(
-                    $request->input('order_by_column', 'id'),
-                    $request->input('order_by_direction', 'desc')
-                )->paginate((int)($request->input('page_size', 15)))
+            })
+                ->with(['roles'])
+                ->orderBy($this->getOrderByColumn(), $this->getOrderByDirection())
+                ->paginate($this->getPageSize())
                 ->toArray()
         );
     }
@@ -46,7 +44,8 @@ class AdminController extends AbstractController
         $admin->is_supper_admin = false;
         $admin->active          = $validated['active'];
         $admin->save();
-        $admin->roles()->sync($validated['roles']);
+        $admin->syncRoles($validated['roles']);
+        $admin->syncPermissions($validated['permissions']);
 
         return $this->response;
     }
@@ -54,11 +53,13 @@ class AdminController extends AbstractController
     public function info($id)
     {
         $admin = Admin::findOrFail($id);
-        $admin->load(['roles']);
+        $admin->load(['roles', 'permissions']);
 
-        $role_ids       = collect($admin->roles)->pluck('id')->all();
-        $admin          = $admin->toArray();
-        $admin['roles'] = $role_ids;
+        $role_ids             = collect($admin->roles)->pluck('id')->all();
+        $permission_ids       = collect($admin->permissions)->pluck('id')->all();
+        $admin                = $admin->toArray();
+        $admin['roles']       = $role_ids;
+        $admin['permissions'] = $permission_ids;
 
         return $this->response->json($admin);
     }

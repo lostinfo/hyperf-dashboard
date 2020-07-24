@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use App\Lib\Jwt;
-use App\Model\Admin;
-use Hyperf\Utils\Context;
+use App\Support\ResponseHelper;
 use Psr\Container\ContainerInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ResponseInterface;
@@ -42,16 +41,15 @@ class AdminAuthMiddleware implements MiddlewareInterface
     {
         $token = $request->getHeader('Authorization');
         if (empty($token)) {
-            return $this->response->json(['status' => false]);
+            return $this->response->withStatus(ResponseHelper::HTTP_UNAUTHORIZED)->withBody(ResponseHelper::createBody('Unauthorized.'));
         }
         $token = $token[0];
         $token = substr($token, 7);
         $jwt_id = $this->jwt->validateToken($token, 'admin');
         if (!$jwt_id) {
-            return $this->response->withStatus(401);
+            return $this->response->withStatus(ResponseHelper::HTTP_UNAUTHORIZED)->withBody(ResponseHelper::createBody('Unauthorized.'));
         }
-        $admin = Admin::findOrFail($jwt_id);
-        Context::set('admin', $admin);
+        auth('admin')->setId($jwt_id);
         return $handler->handle($request);
     }
 }

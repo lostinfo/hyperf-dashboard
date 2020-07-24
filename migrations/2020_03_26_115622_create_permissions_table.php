@@ -13,27 +13,46 @@ class CreatePermissionsTable extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('action')->unique();
-            $table->string('name')->nullable();
+            $table->string('name');
+            $table->string('alias')->nullable();
+            $table->string('guard_name');
+            $table->unique(['name', 'guard_name']);
             $table->timestamps();
         });
         Schema::create('roles', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name')->unique();
             $table->text('menus');
+            $table->string('guard_name');
             $table->timestamps();
         });
-        Schema::create('admin_has_roles', function (Blueprint $table) {
+        Schema::create('model_has_permissions', function (Blueprint $table) {
+            $table->unsignedBigInteger('permission_id');
+
+            $table->string('model_type');
+            $table->unsignedBigInteger('model_id');
+            $table->index(['model_id', 'model_type']);
+
+            $table->foreign('permission_id')
+                ->references('id')
+                ->on('permissions')
+                ->onDelete('cascade');
+
+            $table->primary(['permission_id', 'model_id', 'model_type']);
+        });
+        Schema::create('model_has_roles', function (Blueprint $table) {
             $table->unsignedBigInteger('role_id');
 
-            $table->unsignedBigInteger('admin_id');
+            $table->string('model_type');
+            $table->unsignedBigInteger('model_id');
+            $table->index(['model_id', 'model_type']);
 
             $table->foreign('role_id')
                 ->references('id')
                 ->on('roles')
                 ->onDelete('cascade');
 
-            $table->primary(['role_id', 'admin_id']);
+            $table->primary(['role_id', 'model_id', 'model_type']);
         });
         Schema::create('role_has_permissions', function (Blueprint $table) {
             $table->unsignedBigInteger('permission_id');
@@ -59,7 +78,8 @@ class CreatePermissionsTable extends Migration
     public function down(): void
     {
         Schema::dropIfExists('role_has_permissions');
-        Schema::dropIfExists('admin_has_roles');
+        Schema::dropIfExists('model_has_permissions');
+        Schema::dropIfExists('model_has_roles');
         Schema::dropIfExists('permissions');
         Schema::dropIfExists('roles');
     }

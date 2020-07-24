@@ -10,6 +10,7 @@ use App\Model\Article;
 use App\Request\Admin\ArticleStoreRequest;
 use App\Support\ExportHelper;
 use App\Support\ExportHelperInterface;
+use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\ClientFactory;
 use Hyperf\Utils\Str;
 use League\Flysystem\Filesystem;
@@ -20,20 +21,16 @@ class ArticleController extends AbstractController implements ExportHelperInterf
     use ExportHelper;
 
     /**
+     * @Inject
      * @var Filesystem
      */
     private $filesystem;
 
     /**
+     * @Inject
      * @var ClientFactory
      */
     private $clientFactory;
-
-    public function __construct(Filesystem $filesystem, ClientFactory $clientFactory)
-    {
-        $this->filesystem    = $filesystem;
-        $this->clientFactory = $clientFactory;
-    }
 
     public function getExportHeaders(): array
     {
