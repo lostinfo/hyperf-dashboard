@@ -65,13 +65,11 @@
         itemActions: [
           {
             action: 'edit',
-            type: 'primary',
             label: '编辑',
             permission: 'article.edit',
           },
           {
             action: 'delete',
-            type: 'danger',
             label: '删除',
             permission: 'article.delete',
           },

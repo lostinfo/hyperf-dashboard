@@ -11,7 +11,7 @@
         </el-button>
       </template>
       <template slot="search-items">
-        <el-form-item label="管理员名称" prop="username">
+        <el-form-item label="名称" prop="username">
           <el-input
             placeholder="管理员名称"
             v-model="searchModel.username">
@@ -67,7 +67,6 @@
         itemActions: [
           {
             action: 'edit',
-            type: 'primary',
             label: '编辑',
             showAction: admin => {
               return !admin.is_supper_admin
@@ -75,7 +74,6 @@
           },
           {
             action: 'delete',
-            type: 'danger',
             label: '删除',
             showAction: admin => {
               return !admin.is_supper_admin

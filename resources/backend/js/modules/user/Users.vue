@@ -9,38 +9,38 @@
 
       </template>
       <template slot="search-items">
-        <el-form-item label="Name" prop="name">
+        <el-form-item label="姓名" prop="name">
           <el-input
-            placeholder="Name"
+            placeholder="姓名"
             v-model="searchModel.name">
           </el-input>
         </el-form-item>
-        <el-form-item label="Email" prop="email">
+        <el-form-item label="邮箱" prop="email">
           <el-input
-            placeholder="Email"
+            placeholder="邮箱"
             v-model="searchModel.email">
           </el-input>
         </el-form-item>
-        <el-form-item label="Phone" prop="phone">
+        <el-form-item label="手机" prop="phone">
           <el-input
-            placeholder="Phone"
+            placeholder="手机"
             v-model="searchModel.phone">
           </el-input>
         </el-form-item>
-        <el-form-item label="Age" prop="age">
+        <el-form-item label="年龄" prop="age">
           <el-input
             placeholder="Age"
             v-model="searchModel.age">
           </el-input>
         </el-form-item>
-        <el-form-item label="Created At" prop="created_at">
+        <el-form-item label="创建时间" prop="created_at">
           <el-date-picker
             v-model="searchModel.created_at"
             type="datetimerange"
             value-format="yyyy-MM-dd HH:mm:ss"
             range-separator="-"
-            start-placeholder="Start Date"
-            end-placeholder="End Date">
+            start-placeholder="开始时间"
+            end-placeholder="结束时间">
           </el-date-picker>
         </el-form-item>
       </template>
@@ -68,47 +68,46 @@
             width: 80
           },
           {
-            label: 'Avatar',
+            label: '头像',
             key: 'avatar',
             width: 80,
             template: avatar => {
-              return '<img src="' + avatar+ '" style="width: 40px; height: 40px; border-radius: 50%;">'
+              return '<img src="' + avatar + '" style="width: 40px; height: 40px; border-radius: 50%;">'
             }
           },
           {
-            label: 'Name',
+            label: '姓名',
             key: 'name',
             width: 120,
           },
           {
-            label: 'Email',
+            label: '邮箱',
             key: 'email',
             width: 200,
           },
           {
-            label: 'Phone',
+            label: '手机',
             key: 'phone',
             width: 120,
           },
           {
-            label: 'Age',
+            label: '年龄',
             key: 'age',
             width: 100,
             sortable: true,
           },
           {
-            label: 'Address',
+            label: '地址',
             key: 'address',
           },
           {
-            label: 'Created At',
+            label: '注册时间',
             key: 'created_at',
           },
         ],
         itemActions: [
           {
             action: 'info',
-            type: 'primary',
             label: '详情',
             permission: 'user.info'
           },
